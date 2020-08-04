@@ -8,16 +8,17 @@ namespace ExplorationPlus
     [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
     public class ExplorationPlusUtilities : MonoBehaviour
     {
-        public static ExplorationPlusUtilities Instance;
+        public static EventData<CelestialBody, Vessel> OnRendezvousComplete;
         private void Awake()
         {
-            Instance = this;
             DontDestroyOnLoad(this);
+            OnRendezvousComplete = new EventData<CelestialBody, Vessel>("onRendezvousComplete");
         }
 
         private void Start()
         {
             //TODO: Bump up contract weights.
+            //TODO: Limit number of contracts that can generate
         }
 
         public static float SetCurrency(float actualReward, Contract.ContractPrestige prestige)

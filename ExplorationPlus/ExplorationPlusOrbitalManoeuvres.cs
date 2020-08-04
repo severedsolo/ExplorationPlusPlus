@@ -1,30 +1,28 @@
-﻿using System.Linq;
-using System.Runtime.CompilerServices;
+using System;
 using Contracts;
 using Contracts.Agents;
-using Contracts.Parameters;
-using FinePrint.Contracts.Parameters;
-using KSPAchievements;
-using LibNoise.Modifiers;
-using UnityEngine;
+using FinePrint.Utilities;
 
 namespace ExplorationPlus
 {
-    public class ExplorationPlusFirstSteps : Contract
+    public class ExplorationPlusOrbitalManoeuvres : Contract
     {
         private CelestialBody targetBody = Planetarium.fetch.Home;
         protected override bool Generate()
         {
+            if (!ProgressUtilities.HaveModuleTech("ModuleDockingNode")) return false;
             if (ExplorationPlusUtilities.ContractIsOffered(GetTitle())) return false;
             SetExpiry(1, 7);
             SetScience(ExplorationPlusUtilities.SetCurrency(3.9f, prestige), targetBody);
             agent = AgentList.Instance.GetAgent("Kerbin World-Firsts Record-Keeping Society");
             SetDeadlineYears(500, targetBody);
             SetReputation(ExplorationPlusUtilities.SetCurrency(7.95f, prestige), 0f, targetBody);
-            SetFunds(0f,ExplorationPlusUtilities.SetCurrency(16000f, prestige), 0f, targetBody);
-            AddParameter(new CollectAnyScienceFromBodyParameter(targetBody));
-            AddParameter(new LaunchFirstVesselParameter());
-            return !ProgressTracking.Instance.firstLaunch.IsComplete;
+            if(!ProgressUtilities.GetBodyProgress(ProgressType.RENDEZVOUS, targetBody))AddParameter(new RendezvousParameter());
+            if(!ProgressUtilities.GetBodyProgress(ProgressType.DOCKING, targetBody))AddParameter(new DockingParameter());
+            if (!ProgressUtilities.GetBodyProgress(ProgressType.SPACEWALK, targetBody)) throw new NotImplementedException(); //TODO: Spacewalk Parameter
+            SetFunds(0f, ExplorationPlusUtilities.SetCurrency(ParameterCount * 4000f, prestige), 0f, targetBody);
+            if (ParameterCount == 0) return false;
+            return true;
         }
 
         public override bool MeetRequirements()
@@ -44,12 +42,12 @@ namespace ExplorationPlus
         
         protected override string GetHashString()
         {
-            return "ExplorationPlusFirstSteps"+targetBody;
+            return "ExplorationPlusDocking"+targetBody;
         }
 
         protected override string GetTitle()
         {
-            return "Do Some Science!";
+            return "Perform a series of Orbital Manoeuvres in orbit of "+targetBody.displayName;
         }
 
         protected override string GetDescription()
@@ -66,6 +64,5 @@ namespace ExplorationPlus
         {
             return "Huzzah! There is no such thing as the final frontier.";
         }
-        
     }
 }

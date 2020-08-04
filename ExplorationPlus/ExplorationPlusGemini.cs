@@ -2,28 +2,23 @@ using System.Linq;
 using Contracts;
 using Contracts.Agents;
 using FinePrint.Utilities;
-using UnityEngine;
 
 namespace ExplorationPlus
 {
-    public class ExplorationPlusApollo : Contract
+    public class ExplorationPlusGemini : Contract
     {
         private CelestialBody targetBody = null;
+
         protected override bool Generate()
         {
-            //Let's find a body we've landed on
             for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
             {
-                //Let's Find a body we've landed on
+                //Let's Find a body
                 CelestialBody cb = FlightGlobals.Bodies.ElementAt(i);
-                //Ignore the HomeWorld
-                if (cb == Planetarium.fetch.Home) continue;
-                //No landings if it doesn't have a surface!
-                if (!cb.hasSolidSurface) continue;
-                //Have we landed on it?
-                if (!ProgressUtilities.GetBodyProgress(ProgressType.LANDING, cb) && !ProgressUtilities.GetBodyProgress(ProgressType.SPLASHDOWN, cb)) continue;
+                //Have we orbited?
+                if (!ProgressUtilities.GetBodyProgress(ProgressType.ORBIT, cb)) continue;
                 //Yeah? Great, have we returned?
-                if (ProgressUtilities.GetBodyProgress(ProgressType.LANDINGRETURN, cb, MannedStatus.MANNED)) continue;
+                if (ProgressUtilities.GetBodyProgress(ProgressType.ORBIT, cb, MannedStatus.MANNED)) continue;
                 //Temporarily set targetBody so we can check the title.
                 targetBody = cb;
                 //If the contract already exists, keep searching, but reset targetBody to null so we know it's not valid
@@ -36,9 +31,9 @@ namespace ExplorationPlus
             agent = AgentList.Instance.GetAgent("Kerbin World-Firsts Record-Keeping Society");
             SetDeadlineYears(500, targetBody);
             SetReputation(ExplorationPlusUtilities.SetCurrency(27f, prestige), 0f, targetBody);
-            SetFunds(0f,ExplorationPlusUtilities.SetCurrency(198000f, prestige), 0f, targetBody);
-            AddParameter(new MannedLandingParameter(targetBody));
-            AddParameter(new MannedReturnParameter(targetBody, Vessel.Situations.LANDED));
+            SetFunds(0f, ExplorationPlusUtilities.SetCurrency(198000f, prestige), 0f, targetBody);
+            AddParameter(new MannedOrbitParameter(targetBody));
+            AddParameter(new MannedReturnParameter(targetBody, Vessel.Situations.ORBITING));
             return true;
         }
 
@@ -56,25 +51,25 @@ namespace ExplorationPlus
         {
             return false;
         }
-        
+
         protected override string GetHashString()
         {
-            return "ExplorationPlusApollo"+targetBody;
+            return "ExplorationPlusGemini" + targetBody;
         }
 
         protected override string GetTitle()
         {
-            return "Do a Crewed Landing and Return from "+targetBody.displayName;
+            return "Do a Crewed Orbit and Return from " + targetBody.displayName;
         }
 
         protected override string GetDescription()
         {
-            return "Here at KSC we like to think we are always open to exploring new frontiers. With this in mind, we know you landed on "+targetBody.displayName+", but you must also return!";
+            return "Here at KSC we like to think we are always open to exploring new frontiers. With this in mind, we know you orbited " + targetBody.displayName + ", but you must also return!";
         }
 
         protected override string GetSynopsys()
         {
-            return "Do a manned round trip to the surface of "+targetBody.displayName;
+            return "Do a manned round trip to orbit of " + targetBody.displayName;
         }
 
         protected override string MessageCompleted()

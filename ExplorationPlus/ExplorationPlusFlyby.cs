@@ -1,27 +1,32 @@
+using System.Linq;
 using Contracts;
 using Contracts.Agents;
 using Contracts.Parameters;
-using KSPAchievements;
+using FinePrint.Utilities;
 using UnityEngine;
 
 namespace ExplorationPlus
 {
-    public class ExplorationPlusReachSpace : Contract
+    public class ExplorationPlusFlyby : Contract
     {
-        private CelestialBody targetBody = Planetarium.fetch.Home;
+        private CelestialBody targetBody;
+
         protected override bool Generate()
         {
+            if (!ProgressUtilities.GetBodyProgress(ProgressType.ORBIT, Planetarium.fetch.Home)) return false;
+            targetBody = ProgressUtilities.GetNextUnreached(1).FirstOrDefault();
+            if (targetBody == null) return false;
             if (ExplorationPlusUtilities.ContractIsOffered(GetTitle())) return false;
             SetExpiry(1, 7);
             SetScience(ExplorationPlusUtilities.SetCurrency(9.0f, prestige), targetBody);
             agent = AgentList.Instance.GetAgent("Kerbin World-Firsts Record-Keeping Society");
             SetDeadlineYears(500, targetBody);
             SetReputation(ExplorationPlusUtilities.SetCurrency(4.5f, prestige), 0f, targetBody);
-            SetFunds(0f,ExplorationPlusUtilities.SetCurrency(66000f, prestige), 0f, targetBody);
-            AddParameter(new ReachSituation(Vessel.Situations.SUB_ORBITAL, "Reach Space"));
-            Debug.Log("[ExplorationPlus]: Generate ReachSpace: "+!ProgressTracking.Instance.reachSpace.IsComplete);
-            if (!ProgressTracking.Instance.firstLaunch.IsComplete) return false;
-            return !ProgressTracking.Instance.reachSpace.IsComplete;
+            SetFunds(0f, ExplorationPlusUtilities.SetCurrency(66000f, prestige), 0f, targetBody);
+            if (!targetBody.isStar) AddParameter(new FlybyParameter(targetBody));
+            else AddParameter(new OrbitParameter(targetBody));
+            AddParameter(new CollectAnyScienceFromBodyParameter(targetBody));
+            return true;
         }
 
         public override bool MeetRequirements()
@@ -38,25 +43,25 @@ namespace ExplorationPlus
         {
             return false;
         }
-        
+
         protected override string GetHashString()
         {
-            return "ExplorationPlusReachSpace"+targetBody;
+            return "ExplorationPlusFlyby" + targetBody;
         }
 
         protected override string GetTitle()
         {
-            return "Reach For The Stars";
+            return "Start exploring " + targetBody.displayName;
         }
 
         protected override string GetDescription()
         {
-            return "It's time to slip the surly bonds of gravity, and touch the stars. What? Oh, I mean - let's go to space.";
+            return "Here at KSC we like to think we are always open to exploring new frontiers. With this in mind, we want you to head out to " + targetBody.displayName + " and see what we can see.";
         }
 
         protected override string GetSynopsys()
         {
-            return "To call ourselves a space program, we have to actually go to space.";
+            return "Begin exploring " + targetBody.displayName;
         }
 
         protected override string MessageCompleted()

@@ -51,14 +51,26 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="CollectAnyScienceFromBodyParameter.cs" />
+        <Compile Include="DockingParameter.cs" />
         <Compile Include="ExplorationPlusApollo.cs" />
         <Compile Include="ExplorationPlusFirstSteps.cs" />
+        <Compile Include="ExplorationPlusFlyby.cs" />
+        <Compile Include="ExplorationPlusGemini.cs" />
+        <Compile Include="ExplorationPlusLanding.cs" />
+        <Compile Include="ExplorationPlusOrbit.cs" />
+        <Compile Include="ExplorationPlusOrbitalManoeuvres.cs" />
         <Compile Include="ExplorationPlusReachSpace.cs" />
         <Compile Include="ExplorationPlusUtilities.cs" />
+        <Compile Include="FlybyParameter.cs" />
+        <Compile Include="LandingParameter.cs" />
         <Compile Include="LaunchFirstVesselParameter.cs" />
         <Compile Include="MannedLandingParameter.cs" />
+        <Compile Include="MannedOrbitParameter.cs" />
         <Compile Include="MannedReturnParameter.cs" />
+        <Compile Include="OrbitParameter.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="RendezvousHelper.cs" />
+        <Compile Include="RendezvousParameter.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
